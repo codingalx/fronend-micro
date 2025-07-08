@@ -1,0 +1,158 @@
+name: "saas-frontend"
+# version: '3.9'
+services:
+  fe-employee-service:
+    image: aman694/employee-service:latest
+    container_name: fe-employee-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-leave-service:
+    image: aman694/leave-service:latest
+    container_name: fe-leave-service
+
+    ports:
+      - "5006:5006"
+    env_file:
+      - ./.env  
+ 
+    restart: unless-stopped
+
+  fe-recruitment-service:
+    image:  aman694/recruitment-service:latest
+    container_name: fe-recruitment-service
+
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-shell-service:
+    image:  aman694/shell-service:latest
+    container_name: fe-shell-service
+
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-organization-service:
+    image:  aman694/organization-service:latest
+    container_name: fe-organization-service
+
+    ports:
+      - "5005:5005"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-training-service:
+    image: aman694/training-service:latest
+    container_name: fe-training-service
+
+    ports:
+      - "5004:5004"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-user-service:
+    image:  aman694/user-service:latest
+    container_name: fe-user-service
+
+    ports:
+      - "5007:5007"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-planning-service:
+    image: aman694/planning-service:latest
+    container_name: fe-planning-service
+
+    ports:
+      - "5003:5003"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-delegation-service:
+    image: aman694/delegation-service:latest
+    container_name: fe-delegation-service
+
+    ports:
+      - "5009:5009"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+  fe-document-service:
+    image: aman694/document-service:latest
+    container_name: fe-document-service
+
+    ports:
+      - "5010:5010"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+  fe-evaluation-service:
+    image: aman694/evaluation-service:latest
+    container_name: fe-evaluation-service
+
+    ports:
+      - "5008:5008"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-promotion-service:
+    image: aman694/promotion-service:latest
+    container_name: fe-promotion-service
+
+    ports:
+      - "5011:5011"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  fe-separation-service:
+    image: aman694/separation-service:latest
+    container_name: fe-separation-service
+
+    ports:
+      - "5012:5012"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  fe-transfer-service:
+    image: aman694/transfer-service:latest
+    container_name: fe-transfer-service
+
+    ports:
+      - "5013:5013"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  fe-discipline-service:
+    image: aman694/discipline-service:latest
+    container_name: fe-discipline-service
+
+    ports:
+      - "5014:5014"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  fe-complaint-service:
+    image: aman694/complaint-service:latest
+    container_name: fe-complaint-service
+
+    ports:
+      - "5015:5015"
+    env_file:
+      - ./.env  
+    restart: unless-stopped

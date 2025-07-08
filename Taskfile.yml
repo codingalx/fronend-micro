@@ -1,0 +1,171 @@
+version: "3"
+
+vars:
+  GOOS: "{{default OS .GOOS}}"
+  MVNW: '{{if eq .GOOS "windows"}}mvnw.cmd{{else}}./mvnw{{end}}'
+  DC_DIR: "deployment/docker-compose"
+  INFRA_DC_FILE: "{{.DC_DIR}}/infra.yml"
+  APPS_DC_FILE: "{{.DC_DIR}}/apps.yml"
+  MONITORING_DC_FILE: "{{.DC_DIR}}/monitoring.yml"
+  K8S_DC_FILE: "deployment/k8s"
+  K8S_APPS_DC_FILE: "{{.K8S_DC_FILE}}/apps"
+  K8S_INFRA_DC_FILE: "{{.K8S_DC_FILE}}/infra"
+  K8S_KIND_DC_FILE: "{{.K8S_DC_FILE}}/kind/kind-config.yaml"
+  SLEEP_CMD: '{{if eq .GOOS "windows"}}timeout{{else}}sleep{{end}}'
+
+tasks:
+  default:
+    cmds:
+      - task: test
+
+  build:
+    cmds:
+      - "docker build -t aman694/shell-service ./shell"
+      - "docker build -t aman694/organization-service ./organizationService"
+      - "docker build -t aman694/employee-service ./EmployeeService"
+      - "docker build -t aman694/recruitment-service ./RecruitmentService"
+      - "docker build -t aman694/training-service ./TrainingService"
+      - "docker build -t aman694/leave-service ./LeaveService"
+      - "docker build -t aman694/user-service ./userService"
+      - "docker build -t aman694/planning-service ./PlanningService"
+      - "docker build -t aman694/delegation-service ./delegationService"
+      - "docker build -t aman694/document-service ./documentationService"
+      - "docker build -t aman694/evaluation-service ./evaluationService"
+      - "docker build -t aman694/separation-service ./separationService"
+      - "docker build -t aman694/promotion-service ./promotionService"
+      - "docker build -t aman694/transfer-service ./TransferService"
+      - "docker build -t aman694/discipline-service ./disciplineService"
+      - "docker build -t aman694/complaint-service ./complaintService"
+
+
+  pull:
+    cmds:
+      - "docker pull aman694/shell-service:latest"
+      - "docker pull aman694/organization-service:latest"
+      - "docker pull aman694/employee-service:latest"
+      - "docker pull aman694/recruitment-service:latest"
+      - "docker pull aman694/training-service:latest"
+      - "docker pull aman694/leave-service:latest"
+      - "docker pull aman694/user-service:latest"
+      - "docker pull aman694/planning-service:latest"
+      - "docker pull aman694/promotion-service:latest"
+      - "docker pull aman694/transfer-service:latest"
+      - "docker pull aman694/separation-service:latest"
+      - "docker pull aman694/evaluation-service:latest"
+      - "docker pull aman694/delegation-service:latest"
+      - "docker pull aman694/complaint-service:latest"
+      - "docker pull aman694/discipline-service:latest"
+      - "docker pull aman694/document-service:latest"
+
+    
+  push:
+    deps: [build]
+    cmds:
+      - "docker push aman694/shell-service:latest"
+      - "docker push aman694/organization-service:latest"
+      - "docker push aman694/employee-service:latest"
+      - "docker push aman694/recruitment-service:latest"
+      - "docker push aman694/training-service:latest"
+      - "docker push aman694/leave-service:latest"
+      - "docker push aman694/user-service:latest"
+      - "docker push aman694/planning-service:latest"
+      - "docker push aman694/promotion-service:latest"
+      - "docker push aman694/transfer-service:latest"
+      - "docker push aman694/separation-service:latest"
+      - "docker push aman694/evaluation-service:latest"
+      - "docker push aman694/delegation-service:latest"
+      - "docker push aman694/complaint-service:latest"
+      - "docker push aman694/discipline-service:latest"
+      - "docker push aman694/document-service:latest"
+
+  remove:
+    cmds:
+      - "docker rmi aman694/shell-service"
+      - "docker rmi aman694/organization-service"
+      - "docker rmi aman694/employee-service"
+      - "docker rmi aman694/recruitment-service"
+      - "docker rmi aman694/training-service "
+      - "docker rmi aman694/leave-service "
+      - "docker rmi aman694/user-service "
+      - "docker rmi aman694/planning-service "
+      - "docker rmi aman694/delegation-service "
+      - "docker rmi aman694/document-service "
+      - "docker rmi aman694/evaluation-service"
+      - "docker rmi aman694/complaint-service"
+      - "docker rmi aman694/discipline-service"
+      - "docker rmi aman694/promotion-service"
+      - "docker rmi aman694/separation-service"
+      - "docker rmi aman694/transfer-service"
+
+
+
+
+
+
+  start_infra:
+    cmds:
+      - "docker compose -f {{.INFRA_DC_FILE}} up -d"
+
+  stop_infra:
+    cmds:
+      - "docker compose -f {{.INFRA_DC_FILE}} stop"
+      - "docker compose -f {{.INFRA_DC_FILE}} rm -f"
+
+  restart_infra:
+    cmds:
+      - task: stop_infra
+      - task: sleep
+      - task: start_infra
+
+  start_app:
+    cmds:
+      - "docker compose -f {{.APPS_DC_FILE}} up -d"
+
+  stop_app:
+    cmds:
+      - "docker compose -f {{.APPS_DC_FILE}} stop"
+      - "docker compose -f {{.APPS_DC_FILE}} rm -f"
+
+  restart_app:
+    cmds:
+      - task: stop_app
+      - task: sleep
+      - task: start_app
+
+  start_monitoring:
+    cmds:
+      - "docker compose -f {{.MONITORING_DC_FILE}} up -d"
+
+  stop_monitoring:
+    cmds:
+      - "docker compose -f {{.MONITORING_DC_FILE}} stop"
+      - "docker compose -f {{.MONITORING_DC_FILE}} rm -f"
+
+  restart_monitoring:
+    cmds:
+      - task: stop_monitoring
+      - task: sleep
+      - task: start_monitoring
+
+  start:
+    deps: [build]
+    cmds:
+      - "docker compose -f {{.MONITORING_DC_FILE}} -f {{.INFRA_DC_FILE}} -f {{.APPS_DC_FILE}} up -d"
+
+  stop:
+    cmds:
+      - "docker compose -f {{.MONITORING_DC_FILE}} -f {{.INFRA_DC_FILE}} -f {{.APPS_DC_FILE}} stop"
+      - "docker compose -f {{.MONITORING_DC_FILE}} -f {{.INFRA_DC_FILE}} -f {{.APPS_DC_FILE}} rm -f"
+
+  restart:
+    cmds:
+      - task: stop
+      - task: sleep
+      - task: start
+
+  sleep:
+    vars:
+      DURATION: "{{default 5 .DURATION}}"
+    cmds:
+      - "{{.SLEEP_CMD}} {{.DURATION}}"
+

@@ -1,0 +1,261 @@
+import { Box, IconButton,Dialog,DialogTitle,DialogContent,DialogActions,Button } from "@mui/material";
+import { useEffect, useState, useContext } from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import ReadMoreIcon from "@mui/icons-material/ReadMore";
+import { useNavigate } from "react-router-dom";
+import {
+  holidayManagementEndpoint,
+  budgetYearEndpoint,
+  holidayEndpoint,
+} from "../../../configuration/LeaveApi";
+import Header from "../common/Header";
+import { canAccessResource } from "../../../configuration/SecurityService";
+import LeaveServiceResourceName from "../../../configuration/LeaveServiceResourceName";
+import { useAtom } from 'jotai';
+import { authAtom } from 'shell/authAtom'; 
+
+
+
+const ManageHolidayMgmt = ({refreshKey}) => {
+  const [authState] = useAtom(authAtom); 
+  const tenantId = authState.tenantId;
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [holydayToDelete, setHolydayToDelete] = useState(null);
+  const [reloadTrigger, setReloadTrigger] = useState(0); // State to trigger re-fetch
+
+  const userRoles = authState.roles;
+  const [canEdit, setCanEdit] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+  const [canGetDetail, setCanGetDetail] = useState(false);
+
+  // Function to check permissions
+  const checkPermissions = async () => {
+    try {
+      const editAccess = await canAccessResource(
+        LeaveServiceResourceName.UPDATE_HOLIDAY_MANAGEMENT,
+        userRoles
+      );
+      const deleteAccess = await canAccessResource(
+        LeaveServiceResourceName.DELETE_HOLIDAY_MANAGEMENT,
+        userRoles
+      );
+      const getDetails = await canAccessResource(
+        LeaveServiceResourceName.GET_HOLIDAY_MANAGEMENT_BY_ID,
+        userRoles
+      );
+
+      setCanEdit(editAccess);
+      setCanDelete(deleteAccess);
+      setCanGetDetail(getDetails);
+    } catch (err) {
+      console.error("Error checking permissions:", err.message);
+    }
+  };
+
+
+// Function to handle deletion
+const handleDeleteRole = async () => {
+ console.log("Deleting holy day :", holydayToDelete); // Debugging log
+ try {
+   const { url, headers } = holidayManagementEndpoint(authState.accessToken);
+   await axios.delete(`${url}/${tenantId}/delete/${holydayToDelete}`, {
+     headers,
+   });
+
+   console.log("holy day    deleted successfully:", holydayToDelete);
+   setReloadTrigger((prev) => prev + 1); // Trigger reload after successful delete
+   setDeleteDialogOpen(false); // Close the dialog
+ } catch (error) {
+   console.error("Failed to delete holy day ", error);
+ }
+};
+
+  const handleCellClick = (params, event) => {
+    if (params.field === "delete") {
+      event.stopPropagation();
+    }
+  };
+
+  const navigate = useNavigate();
+  const [holidays, setHolidays] = useState([]);
+  const [error, setError] = useState(null);
+  const [budgetYearNames, setBudgetYearNames] = useState([]);
+  const [holidayNames, setHolidayNames] = useState([]);
+
+  const displayTenants = async () => {
+    const { url, headers } = holidayManagementEndpoint(authState.accessToken);
+    try {
+      const response = await axios.get(`${url}/${tenantId}/get-all`, {
+        headers,
+      });
+      setHolidays(response.data);
+      console.log("response", response.data);
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
+    }
+  };
+  const fetchBudgetYearNames = async () => {
+    const { url, headers } = budgetYearEndpoint(authState.accessToken);
+    try {
+      const response = await axios.get(`${url}/${tenantId}/get-all`, {
+        headers,
+      });
+      setBudgetYearNames(response.data);
+      console.log(response.data);
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
+    }
+  };
+
+  const fetchHolidayNames = async () => {
+    const { url, headers } = holidayEndpoint(authState.accessToken);
+    try {
+      const response = await axios.get(`${url}/${tenantId}/get-all`, {
+        headers,
+      });
+      setHolidayNames(response.data);
+      console.log(response.data);
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchBudgetYearNames();
+    fetchHolidayNames();
+    displayTenants();
+    checkPermissions();
+  }, [reloadTrigger,refreshKey]);
+
+  const columns = [
+    { field: "budgetYearNames", headerName: "Budget Year Name", flex: 2 },
+    { field: "holidayNames", headerName: "Holiday Name", flex: 1 },
+    { field: "date", headerName: "Holiday Date", flex: 1 },
+    
+    {
+      field: "delete",
+      headerName: "Delete",
+      renderCell: (params) => 
+      
+        <IconButton
+          onClick={() => {
+            console.log("Delete button clicked for:", params.row.id);
+            setHolydayToDelete(params.row.id); // Set the role to delete
+            setDeleteDialogOpen(true); // Open the delete dialog
+          }}
+          color="inherit"
+        >
+          <DeleteIcon />
+        </IconButton>
+     
+    },
+
+    {
+      field: "editAction",
+      headerName: "Edit",
+      flex: 1,
+      renderCell: (params) => {
+        const onEditClick = () => {
+          navigate("/editholidaymgmt", { state: { id: params.row.id } });
+        };
+
+        return (
+       
+            <IconButton onClick={onEditClick} color="inherit">
+            <EditIcon />
+          </IconButton>
+          )
+
+      },
+    },
+    {
+      field: "detailsAction",
+      headerName: "Details",
+      flex: 1,
+      renderCell: (params) => {
+        const onEditClick = () => {
+          navigate("/detailsholidaymgmt", { state: { id: params.row.id } });
+        };
+
+        return (
+        
+            <IconButton onClick={onEditClick} color="inherit">
+            <ReadMoreIcon />
+          </IconButton>
+          
+       
+        );
+      },
+    },
+  ];
+
+  return (
+    <Box m="20px">
+      <Header
+        subtitle="Managing the holiday management list"
+      />
+      <Box
+        m="40px 0 0 0"
+        height="75vh"
+        sx={{
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {},
+          "& .MuiDataGrid-columnHeaders": {
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {},
+          "& .MuiDataGrid-footerContainer": {
+            borderTop: "none",
+          },
+          "& .MuiCheckbox-root": {},
+        }}
+      >
+        {error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <DataGrid
+            onCellClick={handleCellClick}
+            rows={holidays.map((holidays) => ({
+              ...holidays,
+              id: holidays.id,
+              budgetYearNames: budgetYearNames.find(
+                (type) => type.id === holidays.budgetYearId
+              )?.budgetYear,
+              holidayNames: holidayNames.find(
+                (type) => type.id === holidays.holidayId
+              )?.holidayName,
+            }))}
+            columns={columns}
+          />
+        )}
+      </Box>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+  <DialogTitle>Confirm Delete</DialogTitle>
+  <DialogContent>
+    Are you sure you want to delete the this Holiday Name ?
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+      Cancel
+    </Button>
+    <Button onClick={handleDeleteRole} color="secondary">
+      Delete
+    </Button>
+  </DialogActions>
+</Dialog>
+    </Box>
+  );
+};
+
+export default ManageHolidayMgmt;
