@@ -147,12 +147,69 @@ services:
     env_file:
       - ./.env  
     restart: unless-stopped
-  fe-complaint-service:
-    image: aman694/complaint-service:latest
-    container_name: fe-complaint-service
+
+  fe-attendance-service:
+    image: aman694/attendance-service:latest
+    container_name: fe-attendance-service
 
     ports:
-      - "5015:5015"
+      - "5016:5016"
     env_file:
       - ./.env  
     restart: unless-stopped
+
+
+    fe-benefit-service:
+    image: aman694/benefit-service:latest
+    container_name: fe-benefit-service
+
+    ports:
+      - "5017:5017"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+    fe-item-service:
+    image: aman694/item-service:latest
+    container_name: fe-item-service
+    ports:
+      - "5018:5018"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+
+  fe-store-service:
+    image: aman694/store-service:latest
+    container_name: fe-store-service
+    ports:
+      - "5019:5019"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+    fe-storeMovement-service:
+    image: aman694/storeMovement-service:latest
+    container_name: fe-storeMovement-service
+    ports:
+      - "5020:5020"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+    fe-fixedAsset-service:
+    image: aman694/fixedAsset-service:latest
+    container_name: fe-fixedAsset-service
+    ports:
+      - "5021:5021"
+    env_file:
+      - ./.env  
+    restart: unless-stopped
+  
+     
+
+  
+
+
+
+
+

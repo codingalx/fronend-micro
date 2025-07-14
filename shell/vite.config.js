@@ -36,12 +36,12 @@ export default defineConfig(({ mode }) => {
           transferService: getEnvVar("TRANSFER_SERVICE_URL"),
           disciplineService: getEnvVar("DISCIPLINE_SERVICE_URL"),
           complaintService: getEnvVar("COMPLAINT_SERVICE_URL"),
-          attendanceService: 'http://172.20.136.101:5016/dist/assets/remoteEntry.js',
-          itemService: 'http:localhost:5018/dist/assets/remoteEntry.js',
-          storeService: 'http:localhost:5019/dist/assets/remoteEntry.js',
-          storeMovementService: 'http:localhost:5020/dist/assets/remoteEntry.js',
-          fixedAssetService: 'http:localhost:5021/dist/assets/remoteEntry.js'
-
+          attendanceService:  getEnvVar("ATTENDANCE_SERVICE_URL"),
+          benefitService:  getEnvVar("BENEFIT_SERVICE_PORT_URL"),
+          itemService:  getEnvVar("ITEM_SERVICE_URL"),
+          storeService:  getEnvVar("STORE_SERVICE_URL"),
+          storeMovementService:  getEnvVar("STOREMOVEMENT_SERVICE_URL"),
+          fixedAssetService:  getEnvVar("FIXEDASSET_SERVICE_PORT_URL"),
 
         },
         exposes: {
