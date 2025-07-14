@@ -133,17 +133,17 @@ const ListShelf = () => {
   };
 
   const handleUpdate = (shelf) => {
-    navigate('/update-shelf', { 
+    navigate('/store/update-shelf', { 
       state: { 
         shelfId: shelf.id,
         storeId: shelf.store,
-        shelfData: shelf
+    
       } 
     });
   };
 
   const handleDelete = (shelf) => {
-    navigate('/delete-shelf', { 
+    navigate('/store/delete-shelf', { 
       state: { 
         shelfId: shelf.id,
         storeId: shelf.store,
@@ -154,14 +154,10 @@ const ListShelf = () => {
   };
 
   const handleCreateCell = (shelf) => {
-    navigate('/create-cell', {
+    navigate('/store/create-cell', {
       state: {
-        shelfCode: shelf.shelfCode,
-        storeName: shelf.enhancedStoreName,
-        storeCategory: shelf.storeCategoryName,
         shelfId: shelf.id,
         storeId: shelf.store,
-        storeType: shelf.storeType
       }
     });
   };

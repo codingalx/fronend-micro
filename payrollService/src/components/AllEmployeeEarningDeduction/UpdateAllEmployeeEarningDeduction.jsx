@@ -71,6 +71,24 @@ const UpdateAllEmployeeEarningDeduction = () => {
 
 const handleFormSubmit = async (values, { resetForm }) => {
   try {
+
+     const selectedEarningDeduction = earningDeduction.find(
+        (deduction) => deduction.id === values.earningDeductionId 
+      );
+
+      // const alreadyExistEaring = payrollPeriod.find(
+      //   (payroll) => payroll.id === values.payrollPeriodId
+      // );
+
+      if (selectedEarningDeduction && selectedEarningDeduction.type !== values.type) {
+        setNotification({
+          open: true,
+          message: "Earning deduction type and selected type must be the same.",
+          severity: "warning",
+        });
+        return;
+      }
+
     // Ensure id and employeeId are defined and accessible
     await updateAllEmployeeEarningDeduction(id,values);
 

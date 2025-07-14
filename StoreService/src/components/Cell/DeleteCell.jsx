@@ -23,6 +23,8 @@ const DeleteCell = () => {
     const [authState] = useAtom(authAtom);
     const tenantId = authState.tenantId;
 
+      const { storeId } = location.state || {};
+
     const [openDialog, setOpenDialog] = useState(false);
     const [notification, setNotification] = useState({
         open: false,
@@ -33,7 +35,7 @@ const DeleteCell = () => {
     const navigate = useNavigate();
 
     const handleClose = () => {
-                navigate('/store/store_setup', { state: { id, activeTab: 3} });
+    navigate('/store/create-cell', { state: { shelfId,storeId} });
 
         // navigate(-1); 
     };
@@ -48,6 +50,7 @@ const DeleteCell = () => {
                     severity: 'success',
                 });
                 setTimeout(() => handleClose(), 1000);
+                  navigate('/store/create-cell', { state: { shelfId,storeId} });
                 
             } else {
                 setNotification({
@@ -56,7 +59,8 @@ const DeleteCell = () => {
                     severity: 'error',
                 });
             }
-            navigate('/store/store_setup', { state: { id, activeTab: 3} });
+             
+
 
         } catch (error) {
             let errorMessage = 'An error occurred. Please try again.';
@@ -82,7 +86,8 @@ const DeleteCell = () => {
         setOpenDialog(false);
     };
      const handleNavigate = () => {
-        navigate('/store/store_setup', { state: { id, activeTab: 3} });
+            navigate('/store/create-cell', { state: { shelfId,storeId} });
+
     }
 
 

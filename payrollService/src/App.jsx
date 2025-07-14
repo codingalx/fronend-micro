@@ -4,7 +4,6 @@ import CreateTaxRate from "./components/taxRate/CreateTaxRate";
 import CreatePayrollGroup from "./components/PayrollGroup/CreatePayrollGroup";
 import DeletePayrollGroup from "./components/PayrollGroup/DeletePayrollGroup";
 import UpdatePayrollGroup from "./components/PayrollGroup/UpdatePayrollGroup";
-
 import DeleteTaxRate from "./components/taxRate/DeleteTaxRate";
 import UpdateTaxRate from "./components/taxRate/UpdateTaxRate";
 import CreatePensionRate from "./components/PensionRate/CreatePensionRate";
@@ -35,6 +34,14 @@ import CreateCourtCase from "./components/CourtCase/CreateCourtCase";
 import CreateAllEmployeeEarningDeduction from "./components/AllEmployeeEarningDeduction/CreateAllEmployeeEarningDeduction";
 import DeleteAllEmployeeEarningDeduction from "./components/AllEmployeeEarningDeduction/DeleteAllEmployeeEarningDeduction";
 import UpdateAllEmployeeEarningDeduction from "./components/AllEmployeeEarningDeduction/UpdateAllEmployeeEarningDeduction";
+import UpdateDepartmentPayLocationAndGroup from "./components/DepartmentPayLocationAndGroup/UpdateDepartmentPayLocationAndGroup";
+import UpdateCourtCase from "./components/CourtCase/UpdateCourtCase";
+import DeleteCourtCase from "./components/CourtCase/DeleteCourtCase";
+import UpdateMortgageInfo from "./components/MortgageInfo/UpdateMortgageInfo";
+import DeleteMortgageInfo from "./components/MortgageInfo/DeleteMortgageInfo";
+import CreateFamilyDetail from "./components/FamilyDetail/CreateFamilyDetail";
+import UpdateFamilyDetail from "./components/FamilyDetail/UpdateFamilyDetail";
+import DeleteFamilyDetail from "./components/FamilyDetail/DeleteFamilyDetail";
 
 function App() {
   return (
@@ -77,6 +84,9 @@ function App() {
           element={<UpdatePensionRate />}
         />
 
+
+        
+
          <Route
           path="/payroll/create_payroll_period"
           element={<CreatePayrollPeriod />}
@@ -91,6 +101,7 @@ function App() {
           path="/payroll/update_payroll_period"
           element={<UpdatePayrollPeriod />}
         />
+        
 
          <Route
           path="/payroll/create_paylocation_group"
@@ -123,6 +134,16 @@ function App() {
           element={<CreateMortgageInfo />}
         />
 
+             <Route
+          path="/payroll/update_mortgage-infos"
+          element={<UpdateMortgageInfo />}
+        />
+
+          <Route
+          path="/payroll/delete_mortgage-infos"
+          element={<DeleteMortgageInfo />}
+        />
+
          <Route
           path="/payroll/create_backpayment_group"
           element={<CreateBackPaymentGroup />}
@@ -147,11 +168,18 @@ function App() {
           element={<DeleteDepartmentPayLocationAndGroup />}
         />
 
+          <Route
+          path="/payroll/update_departement_payLocation_group"
+          element={<UpdateDepartmentPayLocationAndGroup />}
+        />
+
+
               
          <Route
           path="/payroll/create_earning_eduction_setup"
           element={<CreateEarningDeductionSetup />}
         />
+
          <Route
           path="/payroll/delete_earning_earning_setup"
           element={<DeleteEarningDeductionSetup />}
@@ -160,6 +188,7 @@ function App() {
           path="/payroll/update_earning_earning_setup"
           element={<UpdateEarningDeductionSetup />}
         />
+        
 
               <Route
           path="/payroll/create_employee_earning_deduction"
@@ -175,9 +204,19 @@ function App() {
           element={<UpdateEmployeeEarningDeduction />}
         />
 
-                       <Route
+             <Route
           path="/payroll/create_court_case"
           element={<CreateCourtCase />}
+        />
+
+              <Route
+          path="/payroll/update_court_case"
+          element={<UpdateCourtCase />}
+        />
+
+        <Route
+          path="/payroll/delete_court_case"
+          element={<DeleteCourtCase />}
         />
 
           <Route
@@ -195,6 +234,23 @@ function App() {
           element={<UpdateAllEmployeeEarningDeduction />}
         />
 
+        
+                 <Route
+          path="/payroll/create_family_detail"
+          element={<CreateFamilyDetail />}
+        />
+
+                    <Route
+          path="/payroll/update_family_detail"
+          element={<UpdateFamilyDetail />}
+        />
+
+                     <Route
+          path="/payroll/delete_family_detail"
+          element={<DeleteFamilyDetail />}
+        />
+
+      
 
 
 

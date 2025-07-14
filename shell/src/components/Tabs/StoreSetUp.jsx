@@ -17,15 +17,12 @@ const CreateShelf = React.lazy(() => import('storeService/CreateShelf').catch(()
   default: () => <div>Failed to load create shelf pages</div>
 })));
 
-const CreateCell = React.lazy(() => import('storeService/CreateCell').catch(() => ({
-  default: () => <div>Failed to load create cell pages</div>
-})));
+
 
 const tabComponents = [
   { label: 'Store Category', component: CreateStoreCategory, resource: StoreServiceResourceName.CREATE_STORE_CATEGORY },
   { label: 'Store', component: CreateStore, resource: StoreServiceResourceName.CREATE_STORE },
   { label: 'Store Shelf', component: CreateShelf, resource: StoreServiceResourceName.CREATE_SHELF },
-  { label: 'Store Cell', component: CreateCell, resource: StoreServiceResourceName.CREATE_CELL },
 ];
 
 const StoreSetUp = () => {

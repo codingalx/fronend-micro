@@ -15,8 +15,6 @@ const GetAllBackPaymentGroup = ( {refreshKey} ) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-
-
   const [backpaymentGroup, setBackpaymentGroup] = useState([]);
   
   const [error, setError] = useState(null);
@@ -44,18 +42,10 @@ const GetAllBackPaymentGroup = ( {refreshKey} ) => {
     navigate('/payroll/delete_backpayment_group', { state: {  id } });
   };
 
-
-
-
-
-
-
   const columns = [
     { field: "groupName", headerName: "groupName", flex: 1 },
     { field: "payrollFrom", headerName: "payrollFrom", flex: 1 },
     { field: "payrollTo", headerName: "payrollTo", flex: 1 },
-      
-
     
     {
       field: "actions",

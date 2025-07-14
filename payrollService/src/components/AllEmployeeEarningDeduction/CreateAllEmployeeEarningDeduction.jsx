@@ -45,66 +45,53 @@ const CreateAllEmployeeEarningDeduction = () => {
   };
 
   const [refreshKey, setRefreshKey] = useState(0);
+ const handleFormSubmit = async (values, { resetForm }) => {
+    try {
+      const selectedEarningDeduction = earningDeduction.find(
+        (deduction) => deduction.id === values.earningDeductionId
+      );
 
-const handleFormSubmit = async (values, { resetForm }) => {
-  try {
-    // Find the corresponding earning deduction based on the selected earningDeductionId
-    const selectedEarningDeduction = earningDeduction.find(
-      (deduction) => deduction.id === values.earningDeductionId
-    );
+      // const alreadyExistEaring = payrollPeriod.find(
+      //   (payroll) => payroll.id === values.payrollPeriodId
+      // );
 
-    // Find the corresponding payroll period
-    const alreadyExistEaring = payrollPeriod.find(
-      (payroll) => payroll.id === values.payrollPeriodId // Adjusted based on your data structure
-    );
+      if (selectedEarningDeduction && selectedEarningDeduction.type !== values.type) {
+        setNotification({
+          open: true,
+          message: "Earning deduction type and selected type must be the same.",
+          severity: "warning",
+        });
+        return;
+      }
 
-    // Check if the selected type matches the type in the selected earning deduction
-    if (selectedEarningDeduction && selectedEarningDeduction.type !== values.type) {
+      // if (alreadyExistEaring) {
+      //   setNotification({
+      //     open: true,
+      //     message: "Employee earning deduction already exists for the selected earning deduction and payroll period.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+
+      await createAllEmployeeEarningDeduction(values);
+
       setNotification({
         open: true,
-        message: "Earning deduction type and selected type must be the same.",
-        severity: "warning",
+        message: "Employee earning deduction created successfully!",
+        severity: "success",
       });
-      return; // Exit the function if the types do not match
-    }
 
-    // Check if the selected earning deduction and payroll period already exist
-    if (alreadyExistEaring) {
+      resetForm();
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to submit employee earning deduction form data:", error);
       setNotification({
         open: true,
-        message: "Employee earning deduction already exists for the selected earning deduction and payroll period.",
-        severity: "warning",
+        message: "Failed to create employee earning deduction. Please try again.",
+        severity: "error",
       });
-      return; // Exit if it already exists
     }
-
-    // Attempt to create employee earning deduction
-    await createAllEmployeeEarningDeduction(values);
-
-    // Set success notification
-    setNotification({
-      open: true,
-      message: "Employee earning deduction created successfully!",
-      severity: "success",
-    });
-
-    // Reset the form after successful submission
-    resetForm();
-
-    // Refresh data, if needed
-    setRefreshKey((prev) => prev + 1);
-  } catch (error) {
-    // Log the error for debugging
-    console.error("Failed to submit employee earning deduction form data:", error);
-
-    // Set error notification
-    setNotification({
-      open: true,
-      message: "Failed to create employee earning deduction. Please try again.",
-      severity: "error",
-    });
-  }
-};
+  };
 
 
   const [employeeData, setEmployeeData] = useState([]);
@@ -424,17 +411,6 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 InputLabelProps={{ shrink: true }}
               />
               
-              
-
-              
-
-             
-             
-
-            
-
-             
-
                <TextField
                 fullWidth
                 type="text"

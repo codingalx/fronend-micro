@@ -34,7 +34,7 @@ const DeleteReceivableItem = () => {
 
     const handleClose = () => {
         // navigate(-1); 
-                 navigate(' /store/create-receivable-item');
+                 navigate('/store/create-receivable-item');
 
     };
    
@@ -56,7 +56,7 @@ const DeleteReceivableItem = () => {
                     severity: 'error',
                 });
             }
-                      navigate(' /store/create-receivable-item');
+                      navigate('/store/create-receivable-item');
 
         } catch (error) {
             let errorMessage = 'An error occurred. Please try again.';
@@ -82,7 +82,7 @@ const DeleteReceivableItem = () => {
         setOpenDialog(false);
     };
             const handleNavigate = () => {
-               navigate(' /store/create-receivable-item');
+               navigate('/store/create-receivable-item');
 
     }
 

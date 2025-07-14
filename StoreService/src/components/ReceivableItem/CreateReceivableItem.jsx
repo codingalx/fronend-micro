@@ -28,6 +28,7 @@ import {
 } from "../../Api/storeApi";
 import { useAtom } from 'jotai';
 import { authAtom } from 'shell/authAtom';
+import ListReceivableItem from "./ListReceivableItem";
 
 const CreateReceivableItem = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -472,6 +473,7 @@ const CreateReceivableItem = () => {
         )}
       </Formik>
 
+
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
@@ -486,6 +488,9 @@ const CreateReceivableItem = () => {
           {notification.message}
         </Alert>
       </Snackbar>
+            <ListReceivableItem refreshKey={refreshKey} />
+      
+
     </Box>
   );
 };

@@ -1,116 +1,145 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
   TextField,
   Snackbar,
   Alert,
-  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from "@mui/material";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import Header from "../../common/Header";
+import { useAtom } from "jotai";
+import { authAtom } from "shell/authAtom";
 import { createCell } from "../../Api/storeApi";
-import { useAtom } from 'jotai';
-import { authAtom } from 'shell/authAtom';
-import { useLocation } from "react-router-dom";
-import ListCell from "./ListCell"; 
-import NotPageHandle from "../../common/NoPageHandle";
+import {  getAllStores, createShelf, getAllShelves } from "../../Api/storeApi";
+import ListCell from "./ListCell";
+import { useLocation,useNavigate } from "react-router-dom";
+
+// import ListShelf from "./ListShelf";
 
 const CreateCell = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [authState] = useAtom(authAtom); 
+  const [authState] = useAtom(authAtom);
   const tenantId = authState.tenantId;
-  const location = useLocation();
-  const { state } = location;
-
+    const location = useLocation();
+  const { shelfId } = location.state || {};
+  const { storeId } = location.state || {};
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-
   const handleCloseSnackbar = () => {
     setNotification({ ...notification, open: false });
   };
 
-  const handleFormSubmit = async (values, { resetForm }) => {
-    if (!state?.shelfId || !state?.storeId || !state?.storeType) {
-      setNotification({
-        open: true,
-        message: "Missing required shelf, store, or store type information.",
-        severity: "error",
-      });
-      return;
-    }
-    
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [stores, setStores] = useState([]);
+
+    const [shelfs, setShelfs] = useState([]);
+        const [storeShelfs, setStoreShelfs] = useState([]);
+
+  useEffect(() => {
+    fetchAllSore();
+    fetchAllShelf();
+  }, []);
+
+  const fetchAllSore = async () => {
     try {
-      setIsSubmitting(true);
-      const payload = {
-        cellCode: values.cellCode,
-        shelfRow: values.shelfRow,
-        storeType: state.storeType, // Using storeType from state
-        shelfId: state.shelfId,
-        storeId: state.storeId,
-      };
+      const response = await getAllStores(tenantId);
+      setStores(response.data);
+    } catch (error) {
+      console.error("Error fetching store:", error.message);
+    }
+  };
 
-      await createCell(tenantId, payload);
+  const fetchAllShelf = async () => {
+    try {
+      const response = await getAllShelves(tenantId,storeId);
+      setShelfs(response.data);
+    } catch (error) {
+      console.error("Error fetching shelf:", error.message);
+    }
+  };
 
+  //   const fetchAllStoreShelf = async () => {
+  //   try {
+  //     const response = await getAllShelves(tenantId);
+  //     setStoreShelfs(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching store shelf:", error.message);
+  //   }
+  // };
+
+
+  const handleFormSubmit = async (values, { resetForm }) => {
+    try {
+
+  //     const cellCodeExistance = storeShelfs.some(
+  //       (storeShelf) => storeShelf.cellCode === values.cellCode
+  //   );
+
+  //   if (cellCodeExistance) {
+  //     setNotification({
+  //         open: true,
+  //         message: "shelf code already exists. Please use a different one.",
+  //         severity: "warning",
+  //     });
+  //     return;
+  // }
+      await createCell(tenantId, values);
       setNotification({
         open: true,
-        message: "Cell created successfully!",
+        message: "cell of the shell is  successfully created!",
         severity: "success",
       });
       resetForm();
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to submit form data:", error);
       setNotification({
         open: true,
-        message: error.response?.data?.message || "Failed to create cell. Please try again.",
+        message: "Failed to . Please try again.",
         severity: "error",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const initialValues = {
-    cellCode: "",
-    shelfRow: "",
-    storeType: state?.storeType || "", // Will be empty if not provided
-    shelfCode: state?.shelfCode || "",
-    storeName: state?.storeName || "",
+  cellCode: "",
+  shelfRow: "",
+  storeType: "",
+  shelfId: "",
+  storeId: ""
   };
 
-  const checkoutSchema = yup.object().shape({
-    cellCode: yup.string().required("Cell code is required"),
-    shelfRow: yup.string().required("Shelf row is required"),
-  });
-  
-
-  if (!state?.shelfId || !state?.storeId || !state?.storeType) {
-    return (
-      <NotPageHandle
-        message="Incomplete information to create cell. Please select a shelf first."
-        navigateTo="/create-shelf"
-      />
-    );
-  }
+const checkoutSchema = yup.object().shape({
+  cellCode: yup
+    .string()
+    .required("cellCode is required")
+    .min(0, "cellCode must be at least 0 characters")
+    .max(50, "cellCode must be at most 50 characters"),
+  shelfRow: yup.string().required("shelfRow is required"),
+  storeType: yup.string().required("storeType is required"),
+  shelfId: yup.string().required("shelf date is required"),
+  storeId: yup.string().required("store is required"),
+});
 
   return (
     <Box m="20px">
-      <Header subtitle="Create Cell" />
-
+      <Header subtitle="Create cell shelve for store " />
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
-        enableReinitialize
       >
         {({
           values,
@@ -120,20 +149,92 @@ const CreateCell = () => {
           handleChange,
           handleSubmit,
         }) => (
-          <Form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <Box
               display="grid"
-              gap="20px"
+              gap="30px"
               gridTemplateColumns="repeat(4, minmax(0, 1fr))"
               sx={{
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
-              {/* Cell Code input */}
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={!!touched.storeId && !!errors.storeId}
+              >
+                <InputLabel id="criterial-label">Select Store name</InputLabel>
+                <Select
+                  labelId="store-label"
+                  value={values.storeId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="storeId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select Store Name</em>
+                  </MenuItem>
+                  {stores.map((store) => (
+                    <MenuItem key={store.id} value={store.id}>
+                      {store.storeName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.storeId && errors.storeId && (
+                  <FormHelperText>{errors.storeId}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={
+                  !!touched.shelfId && !!errors.shelfId
+                }
+              >
+                <InputLabel id="shelfId-label">
+                  Select store shelf 
+                </InputLabel>
+                <Select
+                  labelId="shelfId-label"
+                  value={values.shelfId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="shelfId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select select store shelf </em>
+                  </MenuItem>
+                  {shelfs.map((shelf) => (
+                    <MenuItem key={shelf.id} value={shelf.id}>
+                      {shelf.shelfCode}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.shelfId && errors.shelfId && (
+                  <FormHelperText>{errors.shelfId}</FormHelperText>
+                )}
+              </FormControl>
+
+            
+
+             
+
+           
               <TextField
                 fullWidth
-                type="text"
-                label="Cell Code"
+             type="text"
+                label="cellCode"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.cellCode}
@@ -142,12 +243,45 @@ const CreateCell = () => {
                 helperText={touched.cellCode && errors.cellCode}
                 sx={{ gridColumn: "span 2" }}
               />
-              
-              {/* Shelf Row input */}
+
+              <FormControl fullWidth sx={{ gridColumn: "span 2", mb: 2 }}>
+                <InputLabel id="storeType-label">select storeType</InputLabel>
+                <Select
+                  labelId="storeType-label"
+                  value={values.storeType}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required
+                  displayEmpty
+                  inputProps={{ "aria-label": "storeType" }}
+                  name="storeType" // Corrected name
+                  error={!!touched.storeType && !!errors.storeType} // Corrected error handling
+                  sx={{
+                    flexGrow: 1,
+                    flexShrink: 1,
+                    minWidth: 0,
+                    gridColumn: "span 2",
+                  }}
+                >
+                  <MenuItem value="INTERNAL">Intenal</MenuItem>
+                  <MenuItem value="MERCHANDISE">Merchandise</MenuItem>
+                </Select>
+                {touched.storeType && errors.storeType && (
+                  <FormHelperText error>{errors.storeType}</FormHelperText>
+                )}
+              </FormControl>
+
+
+             
+
+
+          
               <TextField
                 fullWidth
-                type="text"
-                label="Shelf Row"
+                variant="outlined"
+                type="number"
+                label="shelfRow "
+                InputLabelProps={{ shrink: true }}
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.shelfRow}
@@ -156,75 +290,28 @@ const CreateCell = () => {
                 helperText={touched.shelfRow && errors.shelfRow}
                 sx={{ gridColumn: "span 2" }}
               />
-
-              {/* Shelf Code (read-only) */}
-              <TextField
-                fullWidth
-                label="Shelf Code"
-                value={values.shelfCode}
-                InputProps={{ readOnly: true }}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              {/* Store Name (read-only) */}
-              <TextField
-                fullWidth
-                label="Store Name"
-                value={values.storeName}
-                InputProps={{ readOnly: true }}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              {/* Store Type (read-only) */}
-              <TextField
-                fullWidth
-                label="Store Type"
-                value={state.storeType} // Directly using state.storeType
-                InputProps={{ readOnly: true }}
-                sx={{ gridColumn: "span 2" }}
-              />
             </Box>
-
-            {/* Hidden inputs for IDs and storeType */}
-            <input type="hidden" name="shelfId" value={state.shelfId} />
-            <input type="hidden" name="storeId" value={state.storeId} />
-            <input type="hidden" name="storeType" value={state.storeType} />
-
-            {/* Submit Button */}
             <Box display="flex" justifyContent="start" mt="20px">
-              <Button
-                type="submit"
-                color="secondary"
-                variant="contained"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Create Cell"
-                )}
+              <Button type="submit" color="secondary" variant="contained">
+                Create Sore Shelf
               </Button>
             </Box>
-          </Form>
+          </form>
         )}
       </Formik>
+      <ListCell refreshKey={refreshKey} />
 
+      {/* Snackbar for Notifications */}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={notification.severity}
-          elevation={6}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={notification.severity}>
           {notification.message}
         </Alert>
       </Snackbar>
-
-      <ListCell refreshKey={refreshKey} />
     </Box>
   );
 };

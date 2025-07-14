@@ -98,7 +98,7 @@ const CreatePensionRate = () => {
 
   return (
     <Box m="20px">
-      <Header subtitle="Create Tax Rate" />
+      <Header subtitle="Create pension rate" />
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}

@@ -20,11 +20,11 @@ import { useAtom } from "jotai";
 import { authAtom } from "shell/authAtom";
 import {
     createCourtCase,
-  createMortgageInfos,
   getAllpayEmployeeEarningDeduction,
   getAllpayLocationGroup,
   listEmployee,
 } from "../../../Api/payrollApi";
+import GetAllCourtCase from "./GetAllCourtCase";
 // import GetAllLeaveAdvancePayment from "./GetAllLeaveAdvancePayment";
 
 const CreateCourtCase = () => {
@@ -399,7 +399,7 @@ const CreateCourtCase = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-      {/* <GetAllLeaveAdvancePayment refreshKey={refreshKey} /> */}
+      <GetAllCourtCase refreshKey={refreshKey} />
     </Box>
   );
 };

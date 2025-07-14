@@ -243,7 +243,7 @@ const UpdateReceivableItem = () => {
       });
       resetForm();
       // navigate(-1);
-        navigate(' /store/create-receivable-item');
+        navigate('/store/create-receivable-item');
     } catch (error) {
       console.error("Failed to update receivable item:", error);
       setNotification({

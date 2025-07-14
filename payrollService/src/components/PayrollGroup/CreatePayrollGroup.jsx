@@ -128,16 +128,18 @@ const CreatePayrollGroup = () => {
     payrollTo: "",
     payrollToValid: "", // Default to empty
   };
-
-  const checkoutSchema = yup.object().shape({
-    groupName: yup.string().required("Group name is required"),
-    status: yup.string().required("Status is required"),
-    payrollFrom: yup.string().required("payrollFrom is required"),
-    payrollTo: yup.string().required("payrollTo is required"),
-    payrollToValid: yup
-      .string()
-      .required("Please select a valid end date option"), // Make required
-  });
+const checkoutSchema = yup.object().shape({
+  groupName: yup.string().required("Group name is required"),
+  status: yup.string().required("Status is required"),
+  payrollFrom: yup.string().required("Payroll From is required"),
+  payrollTo: yup.string()
+    .required("Payroll To is required")
+    .test("is-after", "Payroll To must be after Payroll From", function (value) {
+      const { payrollFrom } = this.parent; // Access the parent context
+      return new Date(value) > new Date(payrollFrom); // Compare dates
+    }),
+  payrollToValid: yup.string().required("Please select a valid end date option"),
+});
 
   return (
     <Box m="20px">

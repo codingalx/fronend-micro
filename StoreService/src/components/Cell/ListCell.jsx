@@ -175,7 +175,7 @@ const ListCell = () => {
   };
 
   const handleUpdate = (cell) => {
-    navigate('/update-cell', { 
+    navigate('/store/update-cell', { 
       state: { 
         cellId: cell.id,
         shelfId: cell.shelfId,
@@ -186,7 +186,7 @@ const ListCell = () => {
   };
 
   const handleDelete = (cell) => {
-    navigate('/delete-cell', { 
+    navigate('/store/delete-cell', { 
       state: { 
         cellId: cell.id,
         shelfId: cell.shelfId,

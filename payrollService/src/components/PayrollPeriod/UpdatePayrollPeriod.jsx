@@ -216,7 +216,7 @@ const UpdatePayrollPeriod = () => {
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Create PayrollPeriod
+                Update PayrollPeriod
               </Button>
             </Box>
           </form>

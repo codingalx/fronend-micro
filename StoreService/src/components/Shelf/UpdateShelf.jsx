@@ -9,25 +9,25 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import Header from "../../common/Header";
-import { updateShelf, getShelfById, getAllStores, getStoreCategoryById } from "../../Api/storeApi";
-import { useAtom } from 'jotai';
-import { authAtom } from 'shell/authAtom';
+import { useAtom } from "jotai";
+import { authAtom } from "shell/authAtom";
+import { getAllStores, getAllStoreCategories, getAllShelves, updateShelf, getShelfById } from "../../Api/storeApi";
 import { useLocation, useNavigate } from "react-router-dom";
-import NoPageHandle from "../../common/NoPageHandle";
 
 const UpdateShelf = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [authState] = useAtom(authAtom); 
+  const [authState] = useAtom(authAtom);
   const tenantId = authState.tenantId;
   const location = useLocation();
-  const navigate = useNavigate();
-  const { shelfId, storeId } = location.state || {}; // Get both shelfId and storeId from state
+  const { shelfId } = location.state || {};
+  const { storeId } = location.state || {};
+
 
   const [notification, setNotification] = useState({
     open: false,
@@ -35,163 +35,120 @@ const UpdateShelf = () => {
     severity: "success",
   });
 
+  const navigate = useNavigate();
+
+
+
+
   const handleCloseSnackbar = () => {
     setNotification({ ...notification, open: false });
   };
 
+  const [refreshKey, setRefreshKey] = useState(0);
   const [stores, setStores] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [loadingCategory, setLoadingCategory] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [initialValues, setInitialValues] = useState({
+
+  const [categories, setCategories] = useState([]);
+  const [storeShelfs, setStoreShelfs] = useState([]);
+
+  const [storeShelf, setSetShelf] = useState({
     shelfCode: "",
     storeName: "",
-    storeType: "INTERNAL",
+    storeType: "",
     storeCategoryId: "",
-    storeId: "",
+    storeId: ""
   });
 
   useEffect(() => {
-    fetchAllData();
+    fetchAllSore();
+    fetchAllCategory();
+    fetchAllStoreShelf();
+    fetchAllStoreShelfById();
   }, []);
 
-  const fetchAllData = async () => {
-    try {
-      setLoading(true);
-      await fetchAllStores();
-      await fetchShelfDetails();
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setNotification({
-        open: true,
-        message: "Failed to load shelf data",
-        severity: "error",
-      });
-      setLoading(false);
-    }
-  };
-
-  const fetchAllStores = async () => {
+  const fetchAllSore = async () => {
     try {
       const response = await getAllStores(tenantId);
       setStores(response.data);
     } catch (error) {
-      console.error("Error fetching stores:", error.message);
-      throw error;
+      console.error("Error fetching store:", error.message);
     }
   };
 
-  const fetchShelfDetails = async () => {
+  const fetchAllCategory = async () => {
     try {
-      // Use both storeId from state and shelfId to fetch shelf details
-      const shelfResponse = await getShelfById(tenantId, storeId, shelfId);
-      const shelfData = shelfResponse.data;
-      
-      // Set initial values
-      setInitialValues({
-        shelfCode: shelfData.shelfCode,
-        storeName: shelfData.storeName,
-        storeType: shelfData.storeType,
-        storeCategoryId: shelfData.storeCategoryId,
-        storeId: shelfData.store,
-      });
+      const response = await getAllStoreCategories(tenantId);
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error.message);
+    }
+  };
 
-      // Fetch category name if available
-      if (shelfData.storeCategoryId) {
-        await fetchCategoryName(shelfData.storeCategoryId);
+  const fetchAllStoreShelf = async () => {
+    try {
+      const response = await getAllShelves(storeId, tenantId);
+      setStoreShelfs(response.data);
+    } catch (error) {
+      console.error("Error fetching store shelf:", error.message);
+    }
+  };
+
+  const fetchAllStoreShelfById = async () => {
+    try {
+      const response = await getShelfById(tenantId, storeId, shelfId);
+      setSetShelf(response.data);
+    } catch (error) {
+      console.error("Error fetching store shelf:", error.message);
+    }
+  };
+
+
+  const handleFormSubmit = async (values, { resetForm }) => {
+    try {
+
+      const shelfCodeExistance = storeShelfs.some(
+        (storeShelf) => storeShelf.shelfCode === values.shelfCode && shelfCode.id !== id
+      );
+
+      if (shelfCodeExistance) {
+        setNotification({
+          open: true,
+          message: "shelf code already exists. Please use a different one.",
+          severity: "warning",
+        });
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching shelf details:", error.message);
-      throw error;
-    }
-  };
-
-  const fetchCategoryName = async (categoryId) => {
-    if (!categoryId) {
-      setCategoryName("");
-      return;
-    }
-    
-    setLoadingCategory(true);
-    try {
-      const response = await getStoreCategoryById(tenantId, categoryId);
-      setCategoryName(response.data.name);
-    } catch (error) {
-      console.error("Error fetching category:", error.message);
-      setCategoryName("Unknown Category");
-    } finally {
-      setLoadingCategory(false);
-    }
-  };
-
-  const handleFormSubmit = async (values) => {
-    try {
       await updateShelf(tenantId, shelfId, values);
       setNotification({
         open: true,
-        message: "Shelf updated successfully!",
+        message: "update store shelf successfully!",
         severity: "success",
       });
-      setTimeout(() => navigate(-1), 1500);
-       navigate('/store/store_setup', { state: { id, activeTab: 2 } });
+      resetForm();
+      navigate('/store/store_setup', { state: { activeTab: 2 } });
     } catch (error) {
-      console.error("Failed to update shelf:", error);
+      console.error("Failed to submit form data:", error);
       setNotification({
         open: true,
-        message: error.response?.data?.message || "Failed to update shelf. Please try again.",
+        message: "Failed to . Please try again.",
         severity: "error",
       });
     }
   };
 
-  const handleStoreChange = (event, setFieldValue, stores) => {
-    const selectedStoreId = event.target.value;
-    setFieldValue("storeId", selectedStoreId);
-    
-    const selectedStore = stores.find(store => store.id === selectedStoreId);
-    if (selectedStore) {
-      setFieldValue("storeCategoryId", selectedStore.category);
-      fetchCategoryName(selectedStore.category);
-    } else {
-      setFieldValue("storeCategoryId", "");
-      setCategoryName("");
-    }
-  };
-
   const checkoutSchema = yup.object().shape({
-    shelfCode: yup.string().required("Shelf code is required"),
-    storeName: yup.string().required("Store name is required"),
-    storeType: yup.string().required("Store type is required"),
-    storeCategoryId: yup.string().required("Store category is required"),
-    storeId: yup.string().required("Store is required"),
+    shelfCode: yup.string().required("shelfCode  is required"),
+    storeName: yup.string().required("store name is required"),
+    storeType: yup.string().required("storestoreType is required"),
+    storeCategoryId: yup.string().required("storeCategory date is required"),
+    storeId: yup.string().required("store  is required"),
   });
 
-  if (loading) {
-    return (
-      <Box m="20px" display="flex" justifyContent="center" alignItems="center" height="80vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-   const handleNavigate = () => {
-        navigate('/store/store_setup', { state: { id, activeTab: 2 } });
-    }
-
-if (!shelfId || !storeId) {
-     return (
-       <NoPageHandle
-         message="No store selected for update."
-         navigateTo={handleNavigate}
-       />
-     );
-   }
   return (
     <Box m="20px">
-      <Header subtitle="Update Shelf" />
+      <Header subtitle="Update store shelf " />
       <Formik
         onSubmit={handleFormSubmit}
-        initialValues={initialValues}
+        initialValues={storeShelf}
         validationSchema={checkoutSchema}
         enableReinitialize
       >
@@ -202,9 +159,8 @@ if (!shelfId || !storeId) {
           handleBlur,
           handleChange,
           handleSubmit,
-          setFieldValue,
         }) => (
-          <Form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <Box
               display="grid"
               gap="30px"
@@ -213,10 +169,78 @@ if (!shelfId || !storeId) {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={!!touched.storeId && !!errors.storeId}
+              >
+                <InputLabel id="criterial-label">Select Store name</InputLabel>
+                <Select
+                  labelId="store-label"
+                  value={values.storeId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="storeId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select Store Name</em>
+                  </MenuItem>
+                  {stores.map((store) => (
+                    <MenuItem key={store.id} value={store.id}>
+                      {store.storeName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.storeId && errors.storeId && (
+                  <FormHelperText>{errors.storeId}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={
+                  !!touched.storeCategoryId && !!errors.storeCategoryId
+                }
+              >
+                <InputLabel id="storeCategoryId-label">
+                  Select store category
+                </InputLabel>
+                <Select
+                  labelId="storeCategoryId-label"
+                  value={values.storeCategoryId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="storeCategoryId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select select store category </em>
+                  </MenuItem>
+                  {categories.map((categorie) => (
+                    <MenuItem key={categorie.id} value={categorie.id}>
+                      {categorie.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.storeCategoryId && errors.storeCategoryId && (
+                  <FormHelperText>{errors.storeCategoryId}</FormHelperText>
+                )}
+              </FormControl>
+
               <TextField
                 fullWidth
                 type="text"
-                label="Shelf Code"
+                label="shelfCode"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.shelfCode}
@@ -226,38 +250,39 @@ if (!shelfId || !storeId) {
                 sx={{ gridColumn: "span 2" }}
               />
 
-              <FormControl 
-                fullWidth 
-                error={!!touched.storeId && !!errors.storeId}
-                sx={{ gridColumn: "span 2" }}
-              >
-                <InputLabel id="store-select-label">Store</InputLabel>
+              <FormControl fullWidth sx={{ gridColumn: "span 2", mb: 2 }}>
+                <InputLabel id="storeType-label">select storeType</InputLabel>
                 <Select
-                  labelId="store-select-label"
-                  id="storeId"
-                  name="storeId"
-                  value={values.storeId}
-                  label="Store"
-                  onChange={(e) => handleStoreChange(e, setFieldValue, stores)}
+                  labelId="storeType-label"
+                  value={values.storeType}
+                  onChange={handleChange}
                   onBlur={handleBlur}
+                  required
+                  displayEmpty
+                  inputProps={{ "aria-label": "storeType" }}
+                  name="storeType" // Corrected name
+                  error={!!touched.storeType && !!errors.storeType} // Corrected error handling
+                  sx={{
+                    flexGrow: 1,
+                    flexShrink: 1,
+                    minWidth: 0,
+                    gridColumn: "span 2",
+                  }}
                 >
-                  {stores.map((store) => (
-                    <MenuItem key={store.id} value={store.id}>
-                      {store.storeName} ({store.srNo})
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="INTERNAL">Intenal</MenuItem>
+                  <MenuItem value="MERCHANDISE">Merchandise</MenuItem>
                 </Select>
-                {touched.storeId && errors.storeId && (
-                  <Box sx={{ color: 'error.main', fontSize: '0.75rem', mt: 0.5, ml: 1.5 }}>
-                    {errors.storeId}
-                  </Box>
+                {touched.storeType && errors.storeType && (
+                  <FormHelperText error>{errors.storeType}</FormHelperText>
                 )}
               </FormControl>
 
               <TextField
                 fullWidth
+                variant="outlined"
                 type="text"
-                label="Store Name"
+                label="storeName "
+                InputLabelProps={{ shrink: true }}
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.storeName}
@@ -266,79 +291,24 @@ if (!shelfId || !storeId) {
                 helperText={touched.storeName && errors.storeName}
                 sx={{ gridColumn: "span 2" }}
               />
-
-              <FormControl fullWidth sx={{ gridColumn: "span 2" }}>
-                <TextField
-                  label="Store Category"
-                  value={loadingCategory ? "Loading..." : categoryName}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: loadingCategory && (
-                      <CircularProgress size={20} />
-                    ),
-                  }}
-                  helperText="Automatically populated when store is selected"
-                />
-              </FormControl>
-
-              <input type="hidden" name="storeCategoryId" value={values.storeCategoryId} />
-
-              <FormControl 
-                fullWidth 
-                error={!!touched.storeType && !!errors.storeType}
-                sx={{ gridColumn: "span 2" }}
-              >
-                <InputLabel id="store-type-label">Store Type</InputLabel>
-                <Select
-                  labelId="store-type-label"
-                  id="storeType"
-                  name="storeType"
-                  value={values.storeType}
-                  label="Store Type"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                >
-                  <MenuItem value="INTERNAL">Internal</MenuItem>
-                   <MenuItem value="MERCHANDISE">Merchandise</MenuItem>
-                </Select>
-                {touched.storeType && errors.storeType && (
-                  <Box sx={{ color: 'error.main', fontSize: '0.75rem', mt: 0.5, ml: 1.5 }}>
-                    {errors.storeType}
-                  </Box>
-                )}
-              </FormControl>
             </Box>
-            <Box display="flex" justifyContent="start" mt="20px" gap={2}>
-              <Button 
-                type="submit" 
-                color="secondary" 
-                variant="contained"
-              >
-                Update Shelf
-              </Button>
-              <Button 
-                variant="outlined" 
-                color="error"
-                onClick={() => navigate('/shelves')}
-              >
-                Cancel
+            <Box display="flex" justifyContent="start" mt="20px">
+              <Button type="submit" color="secondary" variant="contained">
+                Create Sore Shelf
               </Button>
             </Box>
-          </Form>
+          </form>
         )}
       </Formik>
 
+      {/* Snackbar for Notifications */}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={notification.severity}
-          elevation={6}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={notification.severity}>
           {notification.message}
         </Alert>
       </Snackbar>

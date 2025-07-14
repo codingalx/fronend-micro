@@ -34,7 +34,7 @@ const DeleteShelf = () => {
 
     const handleClose = () => {
         // navigate(-1); 
-         navigate('/store/store_setup', { state: { id, activeTab: 2 } });
+         navigate('/store/store_setup', { state: {  activeTab: 2 } });
     };
 
     const handleDelete = async () => {
@@ -47,7 +47,7 @@ const DeleteShelf = () => {
                     severity: 'success',
                 });
                 setTimeout(() => handleClose(), 1000);
-                 navigate('/store/store_setup', { state: { id, activeTab: 2 } });
+                 navigate('/store/store_setup', { state: {  activeTab: 2 } });
             } else {
                 setNotification({
                     open: true,
@@ -80,7 +80,7 @@ const DeleteShelf = () => {
     };
 
         const handleNavigate = () => {
-        navigate('/store/store_setup', { state: { id, activeTab: 2} });
+        navigate('/store/store_setup', { state: { activeTab: 2} });
     }
 
     if (!shelfId) {

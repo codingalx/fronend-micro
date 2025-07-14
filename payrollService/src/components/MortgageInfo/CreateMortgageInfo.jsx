@@ -22,8 +22,10 @@ import {
   createMortgageInfos,
   getAllpayEmployeeEarningDeduction,
   getAllpayLocationGroup,
+  getAllpayMortgageInfos,
   listEmployee,
 } from "../../../Api/payrollApi";
+import GetAllMortgageInfo from "./GetAllMortgageInfo";
 // import GetAllLeaveAdvancePayment from "./GetAllLeaveAdvancePayment";
 
 const CreateMortgageInfo = () => {
@@ -46,12 +48,16 @@ const CreateMortgageInfo = () => {
   const [employeeId, setEmployeeId] = useState("");
   const [payLocationAndGroups, setPayLocationAndGroups] = useState([]);
       const [erningEmployeeErningDeduction, setErningEmployeeErningDeduction] = useState([]);
+
+            const [mortages, setMortages] = useState([]);
+
   
 
   useEffect(() => {
     fetchAllEmployee();
     fetchAllLocationGroup();
     fetchAllEmployeeErningDeduction();
+    fetchAllMortage();
 
   }, []);
 
@@ -89,28 +95,55 @@ const CreateMortgageInfo = () => {
   };
 
   
-
-  const handleFormSubmit = async (values, { resetForm }) => {
+  const fetchAllMortage = async () => {
     try {
-      await createMortgageInfos({ ...values, employeeId });
-      setNotification({
-        open: true,
-        message: "Leave advance payment created successfully!",
-        severity: "success",
-      });
-      resetForm();
-      setRefreshKey((prev) => prev + 1);
-      setEmployeeId("");
+      const response = await getAllpayMortgageInfos();
+      const data = response.data;
+      setMortages(data);
     } catch (error) {
-      console.error("Failed to submit form data:", error);
-      setNotification({
-        open: true,
-        message: "Failed to create Leave advance payment. Please try again.",
-        severity: "error",
-      });
+      console.error("Error fetching all mortage inforation:", error.message);
     }
   };
 
+  
+
+const handleFormSubmit = async (values, { resetForm }) => {
+  try {
+    const bankInfoExists = mortages.some(
+      (mortgage) =>
+        mortgage.receiverName === values.receiverName &&
+        mortgage.bankAccount === values.bankAccount &&
+        mortgage.bankName === values.bankName
+    );
+
+    if (bankInfoExists) {
+      setNotification({
+        open: true,
+        message: "Bank information already exists. Please use a different one.",
+        severity: "warning",
+      });
+      return;
+    }
+
+    await createMortgageInfos({ ...values, employeeId });
+
+    setNotification({
+      open: true,
+      message: "Leave advance payment created successfully!",
+      severity: "success",
+    });
+    resetForm();
+    setRefreshKey((prev) => prev + 1);
+    setEmployeeId(""); // Ensure you want to reset this
+  } catch (error) {
+    console.error("Failed to submit form data:", error);
+    setNotification({
+      open: true,
+      message: "Failed to create leave advance payment. Please try again.",
+      severity: "error",
+    });
+  }
+};
 
 
 
@@ -396,7 +429,7 @@ const CreateMortgageInfo = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-      {/* <GetAllLeaveAdvancePayment refreshKey={refreshKey} /> */}
+      <GetAllMortgageInfo refreshKey={refreshKey} />
     </Box>
   );
 };

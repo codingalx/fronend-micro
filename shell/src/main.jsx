@@ -1264,6 +1264,32 @@ const DeleteStore = React.lazy(() => import('storeService/DeleteStore').catch(()
   default: () => <div>Failed to load delete store </div>
 })));
 
+const UpdateShelf = React.lazy(() => import('storeService/UpdateShelf').catch(() => ({
+  default: () => <div>Failed to load update store shelf </div>
+})));
+
+const DeleteShelf = React.lazy(() => import('storeService/DeleteShelf').catch(() => ({
+  default: () => <div>Failed to load delete store shelf </div>
+})));
+
+const CreateCell = React.lazy(() => import('storeService/CreateCell').catch(() => ({
+  default: () => <div>Failed to load create store cell </div>
+})));
+
+const DeleteCell = React.lazy(() => import('storeService/DeleteCell').catch(() => ({
+  default: () => <div>Failed to load delete store cell </div>
+})));
+
+const UpdateCell = React.lazy(() => import('storeService/UpdateCell').catch(() => ({
+  default: () => <div>Failed to load update store cell </div>
+})));
+
+
+
+
+
+
+
 
 const CreateStoreRequisition = React.lazy(() => import('storeService/CreateStoreRequisition').catch(() => ({
   default: () => <div>Failed to load create store requision </div>
@@ -5971,6 +5997,50 @@ const router = createBrowserRouter(
 
           </Route>
 
+
+             <Route
+            element={
+              <RoleProtectedRoute
+                requiredResourceName={
+                  StoreServiceResourceName.CREATE_CELL
+                }
+                apiName="store"
+              />
+            }
+          >
+            <Route path="create-cell" element={<CreateCell />} />
+
+          </Route>
+
+           <Route
+            element={
+              <RoleProtectedRoute
+                requiredResourceName={
+                  StoreServiceResourceName.UPDATE_CELL
+                }
+                apiName="store"
+              />
+            }
+          >
+            <Route path="update-cell" element={<UpdateCell />} />
+
+          </Route>
+          
+             <Route
+            element={
+              <RoleProtectedRoute
+                requiredResourceName={
+                  StoreServiceResourceName.DELETE_CELL
+                }
+                apiName="store"
+              />
+            }
+          >
+            <Route path="delete-cell" element={<DeleteCell />} />
+
+          </Route>
+
+
          
              <Route
             element={
@@ -6025,6 +6095,34 @@ const router = createBrowserRouter(
             }
           >
             <Route path="delete-store" element={<DeleteStore />} />
+
+          </Route>
+
+           <Route
+            element={
+              <RoleProtectedRoute
+                requiredResourceName={
+                  StoreServiceResourceName.DELETE_SHELF
+                }
+                apiName="store"
+              />
+            }
+          >
+            <Route path="delete-shelf" element={<DeleteShelf />} />
+
+          </Route>
+
+           <Route
+            element={
+              <RoleProtectedRoute
+                requiredResourceName={
+                  StoreServiceResourceName.UPDATE_SHELF
+                }
+                apiName="store"
+              />
+            }
+          >
+            <Route path="update-shelf" element={<UpdateShelf />} />
 
           </Route>
 

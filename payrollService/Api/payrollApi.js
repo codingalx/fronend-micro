@@ -307,10 +307,12 @@ export const getDepartementPayLocationGroupById = (Id) => {
   return apiClient_payroll.get(url);
 };
 
+
 export const getAllDepartementPayLocationGroup = () => {
   const url = `department-pay-location-groups/get-all`;
   return apiClient_payroll.get(url);
 };
+
 
 export const deleteDepartementPayLocationGroup = (Id) => {
   const url = `department-pay-location-groups/delete/${Id}`;
@@ -447,5 +449,32 @@ export const updateAllEmployeeEarningDeduction = (Id, data) => {
   const url = `all-employee-earning-deductions/update/${Id}`;
   return apiClient_payroll.put(url, data);
 };
+
+
+export const createFamilyDetails = (data) => {
+  const url = `family-details/add`;
+  return apiClient_payroll.post(url, data);
+};
+
+export const getFamilyDetailsById = (Id) => {
+  const url = `family-details/get/${Id}`;
+  return apiClient_payroll.get(url);
+};
+
+export const getAllFamilyDetails = () => {
+  const url = `family-details/get-all`;
+  return apiClient_payroll.get(url);
+};
+
+export const deleteAllFamilyDetails = (Id) => {
+  const url = `family-details/delete/${Id}`;
+  return apiClient_payroll.delete(url);
+};
+
+export const updateFamilyDetails = (Id, data) => {
+  const url = `family-details/update/${Id}`;
+  return apiClient_payroll.put(url, data);
+};
+
 
 

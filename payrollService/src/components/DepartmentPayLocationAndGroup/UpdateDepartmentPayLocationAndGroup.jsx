@@ -24,9 +24,9 @@ import {
   getAllpayLocationGroup,
   getDepartementById,
   getDepartementPayLocationGroupById,
+  updatepeDepartementPayLocationGroup,
 } from "../../../Api/payrollApi";
 import DepartementTree from "../common/DepartementTree";
-import GetAllDepartmentPayLocationAndGroup from "./GetAllDepartmentPayLocationAndGroup";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAtom } from 'jotai';
 import { authAtom } from 'shell/authAtom'; 
@@ -38,6 +38,7 @@ const UpdateDepartmentPayLocationAndGroup = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = location.state || {};
+  console.log(id)
     const [authState] = useAtom(authAtom); 
         const tenantId = authState.tenantId
 
@@ -99,7 +100,7 @@ const UpdateDepartmentPayLocationAndGroup = () => {
 
   const fetchDepartementPayLocationGroup = async () => {
        try {
-         const response = await getDepartementPayLocationGroupById(tenantId, id);
+         const response = await getDepartementPayLocationGroupById(id);
          const data = response.data; 
          
          setDepartementPayLocationGroupSingle(data);
@@ -145,7 +146,7 @@ const UpdateDepartmentPayLocationAndGroup = () => {
         departmentId: selectedDepartment.id,
       };
 
-      await UpdateDepartmentPayLocationAndGroup(id, formValues);
+      await updatepeDepartementPayLocationGroup(id, formValues);
       setNotification({
         open: true,
         message: "Back payment group created successfully!",
@@ -328,7 +329,7 @@ const UpdateDepartmentPayLocationAndGroup = () => {
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Create Back Payment Group
+                Update Back Payment Group
               </Button>
             </Box>
           </form>
@@ -363,7 +364,6 @@ const UpdateDepartmentPayLocationAndGroup = () => {
         </DialogActions>
       </Dialog>
 
-      <GetAllDepartmentPayLocationAndGroup refreshKey={refreshKey} />
     </Box>
   );
 };

@@ -6,7 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import Header from "../common/Header";
-import { getAllPayrollPeriod } from "../../../Api/payrollApi";
+import { getAllPensionRates } from "../../../Api/payrollApi";
 
 
 
@@ -28,7 +28,7 @@ const GetAllPensionRate = ( {refreshKey} ) => {
 
   const fetchAllPensionRate = async () => {
     try {
-      const response = await getAllPayrollPeriod();
+      const response = await getAllPensionRates();
       SetAllPayrollPeriod(response.data);
     } catch (error) {
       setError(error.message);
@@ -37,11 +37,11 @@ const GetAllPensionRate = ( {refreshKey} ) => {
   };
 
   const handleEditPayrollPeriod = (id) => {
-    navigate('/payroll/update_payroll_period', { state: { id } });
+    navigate('/payroll/update_pension_rate', { state: { id } });
   };
 
   const handleDeletePayrollPeriod = (id) => {
-    navigate('/payroll/delete_payroll_period', { state: {  id } });
+    navigate('/payroll/delete_pension_rate', { state: {  id } });
   };
 
 
@@ -52,9 +52,11 @@ const GetAllPensionRate = ( {refreshKey} ) => {
 
 
   const columns = [
-    { field: "isOrdered", headerName: "isOrdered", flex: 1 },
-    { field: "month", headerName: "month", flex: 1 },
+    { field: "organizationContribution", headerName: "organizationContribution", flex: 1 },
+    { field: "employeesContribution", headerName: "employeesContribution", flex: 1 },
     { field: "status", headerName: "status", flex: 1 },
+        { field: "date", headerName: "date", flex: 1 },
+
       
 
     
@@ -94,7 +96,7 @@ const GetAllPensionRate = ( {refreshKey} ) => {
 
   return (
     <Box m="20px">
-      <Header subtitle= "List of Payroll period"/>
+      <Header subtitle= "List of pension rate"/>
       <Box m="40px 0 0 0" height="75vh">
         <DataGrid
           rows={allPayrollPeriod}

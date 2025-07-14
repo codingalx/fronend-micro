@@ -9,132 +9,131 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import Header from "../../common/Header";
-import { createShelf, getAllShelves } from "../../Api/storeApi";
-import { useAtom } from 'jotai';
-import { authAtom } from 'shell/authAtom';
-import { useLocation } from "react-router-dom";
-import ListShelf from "./ListShelf"; // Import ListShelf component
-import NotPageHandle from "../../common/NoPageHandle";
+import { useAtom } from "jotai";
+import { authAtom } from "shell/authAtom";
+import {  getAllStores, getAllStoreCategories, createShelf } from "../../Api/storeApi";
+import ListShelf from "./ListShelf";
 
 const CreateShelf = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [authState] = useAtom(authAtom); 
+  const [authState] = useAtom(authAtom);
   const tenantId = authState.tenantId;
-  const location = useLocation();
-  const { state } = location;
-
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
-  const [isCheckingCode, setIsCheckingCode] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleCloseSnackbar = () => {
     setNotification({ ...notification, open: false });
   };
 
   const [refreshKey, setRefreshKey] = useState(0);
+  const [stores, setStores] = useState([]);
 
- 
- if (!state?.storeId) {
-      return (
-        <NotPageHandle
-          message="No Store selected to create cell."
-          navigateTo="/store/create-store"
-        />
-      );
-    }
+    const [categories, setCategories] = useState([]);
+        const [storeShelfs, setStoreShelfs] = useState([]);
 
-  const checkShelfCodeExists = async (shelfCode) => {
+
+
+
+
+  useEffect(() => {
+    fetchAllSore();
+    fetchAllCategory();
+    // fetchAllStoreShelf();
+  }, []);
+
+  const fetchAllSore = async () => {
     try {
-      const response = await getAllShelves(tenantId, state?.storeId);
-      return response.data.some(shelf => shelf.shelfCode === shelfCode);
+      const response = await getAllStores(tenantId);
+      setStores(response.data);
     } catch (error) {
-      console.error("Error checking shelf code:", error);
-      return false;
+      console.error("Error fetching store:", error.message);
     }
   };
 
-  const handleFormSubmit = async (values, { resetForm }) => {
-    if (!state?.storeId) {
-      setNotification({
-        open: true,
-        message: "No store selected. Please select a store first.",
-        severity: "error",
-      });
-      return;
-    }
-
-    setIsCheckingCode(true);
+  const fetchAllCategory = async () => {
     try {
-      const codeExists = await checkShelfCodeExists(values.shelfCode);
-      if (codeExists) {
-        setNotification({
-          open: true,
-          message: "Shelf code already exists. Please use a different code.",
-          severity: "error",
-        });
-        return;
-      }
+      const response = await getAllStoreCategories(tenantId);
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error.message);
+    }
+  };
 
-      setIsSubmitting(true);
+  //   const fetchAllStoreShelf = async () => {
+  //   try {
+  //     const response = await getAllShelves(tenantId);
+  //     setStoreShelfs(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching store shelf:", error.message);
+  //   }
+  // };
+
+
+  const handleFormSubmit = async (values, { resetForm }) => {
+    try {
+
+  //     const shelfCodeExistance = storeShelfs.some(
+  //       (storeShelf) => storeShelf.shelfCode === values.shelfCode
+  //   );
+
+  //   if (shelfCodeExistance) {
+  //     setNotification({
+  //         open: true,
+  //         message: "shelf code already exists. Please use a different one.",
+  //         severity: "warning",
+  //     });
+  //     return;
+  // }
       await createShelf(tenantId, values);
       setNotification({
         open: true,
-        message: "Shelf created successfully!",
+        message: "create store shelf successfully!",
         severity: "success",
       });
       resetForm();
-      setRefreshKey((prev) => prev + 1); // This will refresh ListShelf
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to submit form data:", error);
       setNotification({
         open: true,
-        message: error.response?.data?.message || "Failed to create shelf. Please try again.",
+        message: "Failed to . Please try again.",
         severity: "error",
       });
-    } finally {
-      setIsCheckingCode(false);
-      setIsSubmitting(false);
     }
   };
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const initialValues = {
-    shelfCode: "",
-    storeName: state?.storeName || "",
-    storeType: "INTERNAL",
-    storeCategoryId: state?.categoryId || "",
-    storeId: state?.storeId || "",
+  shelfCode: "",
+  storeName: "",
+  storeType: "",
+  storeCategoryId: "",
+  storeId: ""
   };
 
   const checkoutSchema = yup.object().shape({
-    shelfCode: yup.string().required("Shelf code is required"),
-    storeName: yup.string().required("Store name is required"),
-    storeType: yup.string().required("Store type is required"),
-    storeCategoryId: yup.string().required("Store category is required"),
-    storeId: yup.string().required("Store is required"),
+    shelfCode: yup.string().required("shelfCode  is required"),
+    storeName: yup.string().required("store name is required"),
+    storeType: yup.string().required("storestoreType is required"),
+    storeCategoryId: yup.string().required("storeCategory date is required"),
+    storeId: yup.string().required("store  is required"),
   });
 
   return (
     <Box m="20px">
-      <Header subtitle="Create Shelf" />
+      <Header subtitle="Create store shelf " />
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
-        enableReinitialize
       >
         {({
           values,
@@ -143,9 +142,8 @@ const CreateShelf = () => {
           handleBlur,
           handleChange,
           handleSubmit,
-          isSubmitting: formikIsSubmitting,
         }) => (
-          <Form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <Box
               display="grid"
               gap="30px"
@@ -154,10 +152,83 @@ const CreateShelf = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={!!touched.storeId && !!errors.storeId}
+              >
+                <InputLabel id="criterial-label">Select Store name</InputLabel>
+                <Select
+                  labelId="store-label"
+                  value={values.storeId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="storeId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select Store Name</em>
+                  </MenuItem>
+                  {stores.map((store) => (
+                    <MenuItem key={store.id} value={store.id}>
+                      {store.storeName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.storeId && errors.storeId && (
+                  <FormHelperText>{errors.storeId}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  minWidth: 0,
+                  gridColumn: "span 2",
+                }}
+                error={
+                  !!touched.storeCategoryId && !!errors.storeCategoryId
+                }
+              >
+                <InputLabel id="storeCategoryId-label">
+                  Select store category 
+                </InputLabel>
+                <Select
+                  labelId="storeCategoryId-label"
+                  value={values.storeCategoryId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="storeCategoryId"
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    <em>Select select store category </em>
+                  </MenuItem>
+                  {categories.map((categorie) => (
+                    <MenuItem key={categorie.id} value={categorie.id}>
+                      {categorie.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.storeCategoryId && errors.storeCategoryId && (
+                  <FormHelperText>{errors.storeCategoryId}</FormHelperText>
+                )}
+              </FormControl>
+
+            
+
+             
+
+           
               <TextField
                 fullWidth
-                type="text"
-                label="Shelf Code"
+             type="text"
+                label="shelfCode"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.shelfCode}
@@ -167,95 +238,74 @@ const CreateShelf = () => {
                 sx={{ gridColumn: "span 2" }}
               />
 
-              {/* Store Name (read-only) */}
-              <TextField
-                fullWidth
-                type="text"
-                label="Store Name"
-                value={values.storeName}
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              {/* Store Category (read-only) */}
-              <TextField
-                fullWidth
-                type="text"
-                label="Store Category"
-                value={state?.categoryName || ""}
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              {/* Hidden fields for required values */}
-              <input type="hidden" name="storeId" value={values.storeId} />
-              <input type="hidden" name="storeCategoryId" value={values.storeCategoryId} />
-
-              {/* Store Type Dropdown */}
-              <FormControl 
-                fullWidth 
-                error={!!touched.storeType && !!errors.storeType}
-                sx={{ gridColumn: "span 2" }}
-              >
-                <InputLabel id="store-type-label">Store Type</InputLabel>
+              <FormControl fullWidth sx={{ gridColumn: "span 2", mb: 2 }}>
+                <InputLabel id="storeType-label">select storeType</InputLabel>
                 <Select
-                  labelId="store-type-label"
-                  id="storeType"
-                  name="storeType"
+                  labelId="storeType-label"
                   value={values.storeType}
-                  label="Store Type"
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  required
+                  displayEmpty
+                  inputProps={{ "aria-label": "storeType" }}
+                  name="storeType" // Corrected name
+                  error={!!touched.storeType && !!errors.storeType} // Corrected error handling
+                  sx={{
+                    flexGrow: 1,
+                    flexShrink: 1,
+                    minWidth: 0,
+                    gridColumn: "span 2",
+                  }}
                 >
-                  <MenuItem value="INTERNAL">Internal</MenuItem>
+                  <MenuItem value="INTERNAL">Intenal</MenuItem>
                   <MenuItem value="MERCHANDISE">Merchandise</MenuItem>
                 </Select>
                 {touched.storeType && errors.storeType && (
-                  <Box sx={{ color: 'error.main', fontSize: '0.75rem', mt: 0.5, ml: 1.5 }}>
-                    {errors.storeType}
-                  </Box>
+                  <FormHelperText error>{errors.storeType}</FormHelperText>
                 )}
               </FormControl>
+
+
+             
+
+
+          
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="storeName "
+                InputLabelProps={{ shrink: true }}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.storeName}
+                name="storeName"
+                error={!!touched.storeName && !!errors.storeName}
+                helperText={touched.storeName && errors.storeName}
+                sx={{ gridColumn: "span 2" }}
+              />
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
-              <Button 
-                type="submit" 
-                color="secondary" 
-                variant="contained"
-                disabled={isCheckingCode || isSubmitting}
-              >
-                {isCheckingCode || isSubmitting ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Create Shelf"
-                )}
+              <Button type="submit" color="secondary" variant="contained">
+                Create Sore Shelf
               </Button>
             </Box>
-          </Form>
+          </form>
         )}
       </Formik>
+      <ListShelf refreshKey={refreshKey} />
 
+      {/* Snackbar for Notifications */}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={notification.severity}
-          elevation={6}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={notification.severity}>
           {notification.message}
         </Alert>
       </Snackbar>
-
-      {/* Add ListShelf component here */}
-      <ListShelf refreshKey={refreshKey} />
     </Box>
   );
 };

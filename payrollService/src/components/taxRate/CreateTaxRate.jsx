@@ -102,7 +102,8 @@ const CreateTaxRate = () => {
     toAmount: "",
     rateInPercent: "",
     constantAmount: "",
-    budgetYearId: "",
+     date: "",
+  status: ""
   };
 
    
@@ -112,7 +113,9 @@ const CreateTaxRate = () => {
     toAmount: yup.string().required("toAmount is required"),
     rateInPercent: yup.string().required("rateInPercent is required"),
     constantAmount: yup.string().required("constantAmount is required"),
-    budgetYearId: yup.string().required("budgetYear  is required"),
+    date: yup.string().required("date  is required"),
+        status: yup.string().required("status  is required"),
+
   });
 
   return (
@@ -141,44 +144,53 @@ const CreateTaxRate = () => {
               }}
             >
 
-                 <FormControl
-                sx={{
-                  flexGrow: 1,
-                  flexShrink: 1,
-                  minWidth: 0,
-                  gridColumn: "span 2",
-                }}
-                error={!!touched.budgetYearId && !!errors.budgetYearId}
-              >
-                <InputLabel id="inter-label">
-                  Select budgetYear
-                </InputLabel>
-                <Select
-                  labelId="budgetYearId-label"
-                  value={values.budgetYearId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="budgetYearId"
-                  fullWidth
-                >
-                  <MenuItem value="">
-                    <em>Select budget year</em>
-                  </MenuItem>
-                  {budgetYears.map((budget) => (
-                    <MenuItem
-                      key={budget.id}
-                      value={budget.id}
-                    >
-                      {budget.budgetYear}
-                    </MenuItem>
-                  ))}
-                </Select>
+                 <TextField
+                fullWidth
+                type="date"
+                label="date"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.date}
+                name="date"
+                error={!!touched.date && !!errors.date}
+                helperText={touched.date && errors.date}
+                sx={{ gridColumn: "span 2" }}
+                 InputLabelProps={{ shrink: true }}
+              />
 
-                {touched.budgetYearId && errors.budgetYearId && (
-                  <FormHelperText>{errors.budgetYearId}</FormHelperText>
-                )}
-              </FormControl>
+                <FormControl fullWidth sx={{ gridColumn: "span 2", mb: 2 }}>
+                              <InputLabel id="Pension-status-label">
+                                 Status
+                              </InputLabel>
+                              <Select
+                                labelId="Pension -status-label"
+                                value={values.status}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                required
+                                displayEmpty
+                                inputProps={{ "aria-label": "delivery status" }}
+                                name="status" // Corrected name
+                                error={!!touched.status && !!errors.status} // Corrected error handling
+                                sx={{
+                                  flexGrow: 1,
+                                  flexShrink: 1,
+                                  minWidth: 0,
+                                  gridColumn: "span 2",
+                                }}
+                              >
+                                <MenuItem value=""></MenuItem>
+                                <MenuItem value="ACTIVE">Active</MenuItem>
+                                <MenuItem value="INACTIVE">InActive</MenuItem>
+                             
+                              </Select>
+                              {touched.status && errors.status && (
+                                <FormHelperText error>{errors.status}</FormHelperText>
+                              )}
+                            </FormControl>
 
+
+              
 
               <TextField
                 fullWidth
@@ -230,6 +242,7 @@ const CreateTaxRate = () => {
                 helperText={touched.constantAmount && errors.constantAmount}
                 sx={{ gridColumn: "span 2" }}
               />
+                
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
               <Button type="submit" color="secondary" variant="contained">

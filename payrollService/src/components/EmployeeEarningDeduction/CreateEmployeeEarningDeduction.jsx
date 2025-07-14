@@ -48,42 +48,33 @@ const CreateEmployeeEarningDeduction = () => {
 
 const handleFormSubmit = async (values, { resetForm }) => {
   try {
- 
-      const allDeductionSetUpItemCodeExists = earningDeduction.some(
-    (allDeductionSet) => allDeductionSet.type === values.type
-);
+    
 
-    // const alreadyDeductionExist = earningDeduction.some(
-    //   (deduction) => deduction.earningDeductionId === values.earningDeductionId
-    // );
+  const selectedEarningDeduction = earningDeduction.find(
+        (deduction) => deduction.id === values.earningDeductionId
+      );
 
-    // const alreadyEmployeeExist = employeeData.some(
-    //   (employee) => employee.employeeId === values.employeeId
-    // );
+      // const alreadyExistEaring = payrollPeriod.find(
+      //   (payroll) => payroll.id === values.payrollPeriodId
+      // );
 
-    // const alreadyPayrollExist = payrollPeriod.some(
-    //   (payroll) => payroll.payrollPeriodId === values.payrollPeriodId
-    // );
+      if (selectedEarningDeduction && selectedEarningDeduction.type !== values.type) {
+        setNotification({
+          open: true,
+          message: "Earning deduction type and selected type must be the same.",
+          severity: "warning",
+        });
+        return;
+      }
 
-    // Check if earning deduction type is valid
-    if (allDeductionSetUpItemCodeExists) {
-      setNotification({
-        open: true,
-        message: "Earning deduction type and employee earning deduction type must be the same.",
-        severity: "warning",
-      });
-      return;
-    }
-
-    // // Check if all required entities exist
-    // if (alreadyDeductionExist && alreadyEmployeeExist  && alreadyPayrollExist) {
-    //   setNotification({
-    //     open: true,
-    //     message: "Please ensure that the earning deduction, employee, and payroll period exist.",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
+      // if (alreadyExistEaring) {
+      //   setNotification({
+      //     open: true,
+      //     message: "Employee earning deduction already exists for the selected earning deduction and payroll period.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
 
     // Attempt to create employee earning deduction
     await createEmployeeEarningDeduction({ ...values, employeeId });
@@ -217,7 +208,7 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 2" },
               }}
             >
-              <Autocomplete
+                <Autocomplete
                 options={employeeData}
                 getOptionLabel={(option) => option.employeeId} // Adjust based on your data
                 onChange={(event, newValue) => {
@@ -230,16 +221,17 @@ const handleFormSubmit = async (values, { resetForm }) => {
                     variant="outlined"
                     error={!!touched.employeeId && !!errors.employeeId}
                     helperText={touched.employeeId && errors.employeeId}
-                    sx={{ gridColumn: "span 4" }}
+                       sx={{ gridColumn: "span 2" }}
                   />
                 )}
               />
+
               <FormControl
                 sx={{
                   flexGrow: 1,
                   flexShrink: 1,
                   minWidth: 0,
-                  gridColumn: "span 2",
+                  gridColumn: "span ",
                 }}
                 error={
                   !!touched.payrollPeriodId &&
@@ -254,7 +246,6 @@ const handleFormSubmit = async (values, { resetForm }) => {
                   onBlur={handleBlur}
                   name="payrollPeriodId"
                   fullWidth
-                    sx={{ gridColumn: "span 2" }}
                 >
                   <MenuItem value="">
                     <em>Select payroll period</em>
@@ -334,7 +325,7 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 name="numberOfMonth"
                 error={!!touched.numberOfMonth && !!errors.numberOfMonth}
                 helperText={touched.numberOfMonth && errors.numberOfMonth}
-                sx={{ gridColumn: "span 1" }}
+                sx={{ gridColumn: "span 2" }}
                 InputLabelProps={{ shrink: true }}
               />
                 <FormControl fullWidth sx={{ gridColumn: "span 2", mb: 2 }}>
@@ -431,7 +422,7 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 name="monthlyAmount"
                 error={!!touched.monthlyAmount && !!errors.monthlyAmount}
                 helperText={touched.monthlyAmount && errors.monthlyAmount}
-                sx={{ gridColumn: "span 1" }}
+                sx={{ gridColumn: "span 2" }}
                 InputLabelProps={{ shrink: true }}
               />
 
@@ -445,7 +436,7 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 name="appliedFrom"
                 error={!!touched.appliedFrom && !!errors.appliedFrom}
                 helperText={touched.appliedFrom && errors.appliedFrom}
-                sx={{ gridColumn: "span 1" }}
+                sx={{ gridColumn: "span 2" }}
                 InputLabelProps={{ shrink: true }}
               />
               
@@ -470,7 +461,7 @@ const handleFormSubmit = async (values, { resetForm }) => {
                 name="remark"
                 error={!!touched.remark && !!errors.remark}
                 helperText={touched.remark && errors.remark}
-                sx={{ gridColumn: "span 1" }}
+                sx={{ gridColumn: "span 2" }}
               />
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">

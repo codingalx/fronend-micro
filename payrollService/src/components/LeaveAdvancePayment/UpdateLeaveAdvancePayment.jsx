@@ -166,7 +166,7 @@ const UpdateLeaveAdvancePayment = () => {
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Create Leave Advance Payment
+                Update Leave Advance Payment
               </Button>
             </Box>
           </form>

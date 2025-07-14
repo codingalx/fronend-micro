@@ -9,10 +9,9 @@ import Header from "../common/Header";
 import { useAtom } from "jotai";
 import { authAtom } from "shell/authAtom";
 import {
-  listEmployee,
   listDepartement,
   getAllpayLocationGroup,
-  getAllDepartementPayLocationGroup, // Assuming this API fetches pay location groups
+  getAllDepartementPayLocationGroup,
 } from "../../../Api/payrollApi";
 
 const GetAllDepartmentPayLocationAndGroup = ({ refreshKey }) => {
@@ -22,8 +21,6 @@ const GetAllDepartmentPayLocationAndGroup = ({ refreshKey }) => {
   const [authState] = useAtom(authAtom);
   const tenantId = authState.tenantId;
 
-  const [departmentData, setDepartmentData] = useState([]);
-  const [payLocationData, setPayLocationData] = useState([]);
   const [allLeaveAdvancePayment, setAllLeaveAdvancePayment] = useState([]);
   const [error, setError] = useState(null);
 
@@ -33,65 +30,59 @@ const GetAllDepartmentPayLocationAndGroup = ({ refreshKey }) => {
 
   const fetchData = async () => {
     try {
-      const [leavePaymentsResponse, departmentsResponse, payLocationsResponse] = await Promise.all([
+      const [
+        leavePaymentsResponse,
+        departmentsResponse,
+        payLocationsResponse,
+      ] = await Promise.all([
         getAllDepartementPayLocationGroup(),
-        listEmployee(tenantId),
         listDepartement(tenantId), // Fetch departments
-        getAllpayLocationGroup() // Fetch pay location groups
+        getAllpayLocationGroup(), // Fetch pay location groups
       ]);
 
-      const leavePayments = leavePaymentsResponse.data.map(payment => ({
+      const leavePayments = leavePaymentsResponse.data.map((payment) => ({
         ...payment,
         departmentName: getDepartmentName(payment.departmentId, departmentsResponse.data),
         payGroup: getPayGroupName(payment.payLocationAndGroupId, payLocationsResponse.data),
-       
       }));
 
       setAllLeaveAdvancePayment(leavePayments);
-     
-      setDepartmentData(departmentsResponse.data);
-      setPayLocationData(payLocationsResponse.data);
     } catch (error) {
       setError(error.message);
       console.error(error.message);
     }
   };
 
-
-
   const getDepartmentName = (id, departments) => {
-    const department = departments.find(dept => dept.id === id);
+    const department = departments.find((dept) => dept.id === id);
     return department ? department.departmentName : "Unknown"; // Return department name
   };
 
   const getPayGroupName = (id, payLocations) => {
-    const payLocation = payLocations.find(location => location.id === id);
+    const payLocation = payLocations.find((location) => location.id === id);
     return payLocation ? payLocation.payGroup : "Unknown"; // Return pay group
   };
 
   const handleEditDepartementPayLocationGroup = (id) => {
-    navigate("/payroll/delete_departement_payLocation_group", { state: { id } });
+    navigate("/payroll/update_departement_payLocation_group", { state: { id } });
   };
 
   const handleDeleteDepartementPayLocationGroup = (id) => {
     navigate("/payroll/delete_departement_payLocation_group", { state: { id } });
   };
 
-  
-
   const columns = [
-    { field: "system", headerName: "system", flex: 1 },
-    { field: "costCenter", headerName: "costCenter", flex: 1 },
-    { field: "departmentName", headerName: "Department Name", flex: 1 }, // Display department name
-    { field: "payGroup", headerName: "Pay Group", flex: 1 }, // Display pay group
-
+    { field: "system", headerName: "System", flex: 1 },
+    { field: "costCenter", headerName: "Cost Center", flex: 1 },
+    { field: "departmentName", headerName: "Department Name", flex: 1 },
+    { field: "payGroup", headerName: "Pay Group", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
       width: 150,
       renderCell: (params) => (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Tooltip title="Delete Departement Pay LocationGroup">
+          <Tooltip title="Delete Department Pay Location Group">
             <IconButton
               onClick={() => handleDeleteDepartementPayLocationGroup(params.row.id)}
               color="error"
@@ -99,8 +90,8 @@ const GetAllDepartmentPayLocationAndGroup = ({ refreshKey }) => {
               <DeleteIcon />
             </IconButton>
           </Tooltip>
-
-          <Tooltip title="Update Departement Pay LocationGroup">
+          
+          <Tooltip title="Update Department Pay Location Group">
             <IconButton
               onClick={() => handleEditDepartementPayLocationGroup(params.row.id)}
               color="primary"
